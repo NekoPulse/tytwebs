@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TyTWebs - Web Code Extractor</title>
+    <link rel="icon" href="favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.4;
+        }
+        
+        .header {
+            background: #ffffff;
+            border-bottom: 1px solid #d1d5db;
+            padding: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .title-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #6b7280;
+            margin-left: 10px;
+        }
+        
+        .credit {
+            font-size: 14px;
+            color: #9ca3af;
+            margin-top: 10px;
+        }
+        
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+        
+        .input-section {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .url-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
+            color: #374151;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+        
+        .url-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .url-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        .extract-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-width: 120px;
+        }
+        
+        .extract-btn:hover {
+            background: #2563eb;
+        }
+        
+        .extract-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+            font-size: 16px;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .spinner {
+            border: 3px solid #e5e7eb;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .code-section {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .code-header {
+            background: #f9fafb;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .code-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .code-header-right {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .language-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-btn {
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .action-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+        
+        .action-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+        
+        .code-content {
+            background: #2d3748 !important;
+            padding: 20px !important;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Fira Code', 'Courier New', monospace !important;
+            font-size: 13px !important;
+            line-height: 1.5 !important;
+            color: #e2e8f0 !important;
+        }
+        
+        .code-content pre {
+            background: transparent !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            font-family: 'Fira Code', 'Courier New', monospace !important;
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+        }
+        
+        .code-content code {
+            background: transparent !important;
+            font-family: 'Fira Code', 'Courier New', monospace !important;
+            color: inherit !important;
+        }
+        
+        .code-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .code-content::-webkit-scrollbar-track {
+            background: #1a202c;
+        }
+        
+        .code-content::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 4px;
+        }
+        
+        .code-content::-webkit-scrollbar-thumb:hover {
+            background: #2d3748;
+        }
+        
+        .error {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 16px;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            margin: 16px 0;
+        }
+        
+        .success {
+            background: #f0fdf4;
+            color: #16a34a;
+            padding: 12px;
+            border: 1px solid #bbf7d0;
+            border-radius: 6px;
+            margin: 16px 0;
+        }
+        
+        .footer {
+            background: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            padding: 20px;
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 40px;
+        }
+        
+        /* Tema personalizado para Prism */
+        .token.comment,
+        .token.prolog,
+        .token.doctype,
+        .token.cdata {
+            color: #6a9955;
+        }
+        
+        .token.punctuation {
+            color: #d4d4d4;
+        }
+        
+        .token.property,
+        .token.tag,
+        .token.boolean,
+        .token.number,
+        .token.constant,
+        .token.symbol,
+        .token.deleted {
+            color: #569cd6;
+        }
+        
+        .token.selector,
+        .token.attr-name,
+        .token.string,
+        .token.char,
+        .token.builtin,
+        .token.inserted {
+            color: #ce9178;
+        }
+        
+        .token.operator,
+        .token.entity,
+        .token.url,
+        .language-css .token.string,
+        .style .token.string {
+            color: #d4d4d4;
+        }
+        
+        .token.atrule,
+        .token.attr-value,
+        .token.keyword {
+            color: #c586c0;
+        }
+        
+        .token.function,
+        .token.class-name {
+            color: #dcdcaa;
+        }
+        
+        .token.regex,
+        .token.important,
+        .token.variable {
+            color: #d16969;
+        }
+        
+        @media (max-width: 768px) {
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .url-input {
+                width: 100%;
+            }
+            
+            .extract-btn {
+                width: 100%;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="title-section">
+                <h1 class="title">TyTWebs</h1>
+                <span class="subtitle">Extrae frontends de webs</span>
+            </div>
+            <div class="credit">Creado por Tyklorer</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="input-section">
+            <div class="input-group">
+                <input type="url" class="url-input" id="urlInput" placeholder="https://ejemplo.com" />
+                <button class="extract-btn" id="extractBtn">Extraer Código</button>
+            </div>
+        </div>
+
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Extrayendo código del sitio web...</p>
+            <p><small>Porfavor espere un momento...</small></p>
+        </div>
+
+        <div class="results" id="results">
+            <div class="stats" id="stats"></div>
+            
+            <div class="code-section">
+                <div class="code-header">
+                    <div class="code-header-left">
+                        <div class="language-icon">
+                            <svg fill="#e34c26" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.565-2.438L1.5 0zm7.031 9.75l-.232-2.718 10.059.003.23-2.622L5.412 4.41l.698 8.01h9.126l-.326 3.426-2.91.804-2.955-.81-.188-2.11H6.248l.33 4.171L12 19.351l5.379-1.443.744-8.157H8.531z"/>
+                            </svg>
+                        </div>
+                        <span>HTML</span>
+                    </div>
+                    <div class="code-header-right">
+                        <button class="action-btn" onclick="copyCode('html')">
+                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                            </svg>
+                            Copiar
+                        </button>
+                        <button class="action-btn" onclick="downloadCode('html')">
+                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+                            </svg>
+                            Descargar
+                        </button>
+                    </div>
+                </div>
+                <div class="code-content" id="htmlCode"></div>
+            </div>
+
+            <div class="code-section">
+                <div class="code-header">
+                    <div class="code-header-left">
+                        <div class="language-icon">
+                            <svg fill="#1572b6" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1.5 0h21l-1.91 21.563L11.977 24l-8.565-2.438L1.5 0zm17.09 4.413L5.41 4.41l.213 2.622 10.125.002-.255 2.716h-6.64l.24 2.573h6.182l-.366 3.523-2.91.804-2.956-.81-.188-2.11h-2.61l.29 3.855L12 19.288l5.373-1.53L18.59 4.414z"/>
+                            </svg>
+                        </div>
+                        <span>CSS</span>
+                    </div>
+                    <div class="code-header-right">
+                        <button class="action-btn" onclick="copyCode('css')">
+                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                            </svg>
+                            Copiar
+                        </button>
+                        <button class="action-btn" onclick="downloadCode('css')">
+                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+                            </svg>
+                            Descargar
+                        </button>
+                    </div>
+                </div>
+                <div class="code-content" id="cssCode"></div>
+            </div>
+
+            <div class="code-section">
+                <div class="code-header">
+                    <div class="code-header-left">
+                        <div class="language-icon">
+                            <svg fill="#f7df1e" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M0 0h24v24H0V0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z"/>
+                            </svg>
+                        </div>
+                        <span>JavaScript</span>
+                    </div>
+                    <div class="code-header-right">
+                        <button class="action-btn" onclick="copyCode('js')">
+                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                            </svg>
+                            Copiar
+                        </button>
+                        <button class="action-btn" onclick="downloadCode('js')">
+                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+                            </svg>
+                            Descargar
+                        </button>
+                    </div>
+                </div>
+                <div class="code-content" id="jsCode"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        &copy; 2025 TyKlore™. Todos los derechos reservados
+    </div>
+
+    <script>
+        let extractedData = {
+            html: '',
+            css: '',
+            js: ''
+        };
+
+        let currentUrl = '';
+
+        document.getElementById('extractBtn').addEventListener('click', extractCode);
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                extractCode();
+            }
+        });
+
+        async function extractCode() {
+            const url = document.getElementById('urlInput').value.trim();
+            
+            if (!url) {
+                showError('Por favor ingresa una URL válida');
+                return;
+            }
+
+            if (!isValidURL(url)) {
+                showError('La URL ingresada no es válida');
+                return;
+            }
+
+            currentUrl = url;
+            showLoading(true);
+            hideError();
+
+            try {
+                const html = await fetchWithMultipleProxies(url);
+                
+                const { css, js } = extractResourcesFromHTML(html);
+                
+                // Intentar obtener archivos CSS y JS externos
+                const externalCSS = await extractExternalCSS(html, url);
+                const externalJS = await extractExternalJS(html, url);
+                
+                extractedData = {
+                    html: html,
+                    css: css + externalCSS,
+                    js: js + externalJS
+                };
+
+                displayResults();
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError(`Error al extraer código: ${error.message}`);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function fetchWithMultipleProxies(url) {
+            // Lista de proxies públicos para CORS
+            const proxies = [
+                `https://cors-anywhere.herokuapp.com/${url}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+                `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(url)}`
+            ];
+
+            for (let i = 0; i < proxies.length; i++) {
+                try {
+                    console.log(`Probando proxy ${i + 1}/${proxies.length}`);
+                    
+                    const response = await fetch(proxies[i], {
+                        method: 'GET',
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const html = await response.text();
+                        if (html && html.length > 100) {
+                            return html;
+                        }
+                    }
+                } catch (error) {
+                    console.warn(`Proxy ${i + 1} falló:`, error.message);
+                    continue;
+                }
+            }
+
+            // Si todos los proxies fallan, intentar fetch directo
+            try {
+                const response = await fetch(url, {
+                    mode: 'cors',
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                    }
+                });
+                
+                if (response.ok) {
+                    return await response.text();
+                }
+            } catch (error) {
+                console.warn('Fetch directo falló:', error.message);
+            }
+
+            throw new Error('No se pudo acceder al sitio web. Esto puede deberse a políticas CORS o el sitio no está disponible.');
+        }
+
+        function extractResourcesFromHTML(html) {
+            let css = '';
+            let js = '';
+
+            // Extraer CSS inline
+            const styleRegex = /<style[^>]*>([\s\S]*?)<\/style>/gi;
+            let styleMatch;
+            while ((styleMatch = styleRegex.exec(html)) !== null) {
+                css += styleMatch[1] + '\n\n';
+            }
+
+            // Extraer JavaScript inline
+            const scriptRegex = /<script(?![^>]*src)[^>]*>([\s\S]*?)<\/script>/gi;
+            let scriptMatch;
+            while ((scriptMatch = scriptRegex.exec(html)) !== null) {
+                js += scriptMatch[1] + '\n\n';
+            }
+
+            return { css, js };
+        }
+
+        async function extractExternalCSS(html, baseUrl) {
+            const linkRegex = /<link[^>]*rel=["']stylesheet["'][^>]*href=["']([^"']+)["'][^>]*>/gi;
+            let css = '';
+            let linkMatch;
+
+            while ((linkMatch = linkRegex.exec(html)) !== null) {
+                try {
+                    const cssUrl = resolveURL(linkMatch[1], baseUrl);
+                    const cssContent = await fetchWithMultipleProxies(cssUrl);
+                    css += `/* ${cssUrl} */\n${cssContent}\n\n`;
+                } catch (error) {
+                    console.warn('Error obteniendo CSS:', cssUrl);
+                    css += `/* Error cargando: ${cssUrl} */\n\n`;
+                }
+            }
+
+            return css;
+        }
+
+        async function extractExternalJS(html, baseUrl) {
+            const scriptRegex = /<script[^>]*src=["']([^"']+)["'][^>]*><\/script>/gi;
+            let js = '';
+            let scriptMatch;
+
+            while ((scriptMatch = scriptRegex.exec(html)) !== null) {
+                try {
+                    const jsUrl = resolveURL(scriptMatch[1], baseUrl);
+                    const jsContent = await fetchWithMultipleProxies(jsUrl);
+                    js += `/* ${jsUrl} */\n${jsContent}\n\n`;
+                } catch (error) {
+                    console.warn('Error obteniendo JS:', jsUrl);
+                    js += `/* Error cargando: ${jsUrl} */\n\n`;
+                }
+            }
+
+            return js;
+        }
+
+        function resolveURL(url, baseUrl) {
+            if (url.startsWith('http')) {
+                return url;
+            }
+            
+            const base = new URL(baseUrl);
+            if (url.startsWith('//')) {
+                return base.protocol + url;
+            }
+            if (url.startsWith('/')) {
+                return base.origin + url;
+            }
+            return base.origin + base.pathname.replace(/\/[^\/]*$/, '/') + url;
+        }
+
+        function displayResults() {
+            // Mostrar HTML con sintaxis highlighting
+            displayHighlightedCode('html', extractedData.html, 'markup');
+            
+            // Mostrar CSS con sintaxis highlighting
+            displayHighlightedCode('css', extractedData.css, 'css');
+            
+            // Mostrar JS con sintaxis highlighting
+            displayHighlightedCode('js', extractedData.js, 'javascript');
+
+            // Mostrar estadísticas
+            const stats = document.getElementById('stats');
+            stats.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${extractedData.html.length.toLocaleString()}</div>
+                    <div class="stat-label">caracteres HTML</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${extractedData.css.length.toLocaleString()}</div>
+                    <div class="stat-label">caracteres CSS</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${extractedData.js.length.toLocaleString()}</div>
+                    <div class="stat-label">caracteres JS</div>
+                </div>
+            `;
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function displayHighlightedCode(type, code, language) {
+            const container = document.getElementById(type + 'Code');
+            
+            if (!code || code.trim() === '') {
+                container.innerHTML = `<pre><code>No se encontró código ${type.toUpperCase()}</code></pre>`;
+                return;
+            }
+
+            // Crear el elemento pre y code
+            const pre = document.createElement('pre');
+            const codeElement = document.createElement('code');
+            codeElement.className = `language-${language}`;
+            codeElement.textContent = code;
+            
+            pre.appendChild(codeElement);
+            container.innerHTML = '';
+            container.appendChild(pre);
+            
+            // Aplicar syntax highlighting
+            Prism.highlightElement(codeElement);
+        }
+
+        function copyCode(type) {
+            const code = extractedData[type];
+            
+            if (!code || code.trim() === '') {
+                showError(`No hay código ${type.toUpperCase()} para copiar`);
+                return;
+            }
+
+            navigator.clipboard.writeText(code).then(() => {
+                showSuccess(`Código ${type.toUpperCase()} copiado al portapapeles`);
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+                showError('Error al copiar al portapapeles');
+            });
+        }
+
+        function downloadCode(type) {
+            const code = extractedData[type];
+            
+            if (!code || code.trim() === '') {
+                showError(`No hay código ${type.toUpperCase()} para descargar`);
+                return;
+            }
+
+            const extensions = {
+                'html': 'html',
+                'css': 'css',
+                'js': 'js'
+            };
+
+            const filename = `extracted_${type}.${extensions[type]}`;
+            const blob = new Blob([code], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showSuccess(`Archivo ${filename} descargado`);
+        }
+
+        function isValidURL(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            const extractBtn = document.getElementById('extractBtn');
+            
+            if (show) {
+                loading.style.display = 'block';
+                results.style.display = 'none';
+                extractBtn.disabled = true;
+                extractBtn.textContent = 'Extrayendo...';
+            } else {
+                loading.style.display = 'none';
+                extractBtn.disabled = false;
+                extractBtn.textContent = 'Extraer Código';
+            }
+        }
+
+        function showError(message) {
+            hideError();
+            const error = document.createElement('div');
+            error.className = 'error';
+            error.textContent = message;
+            
+            const inputSection = document.querySelector('.input-section');
+            inputSection.insertAdjacentElement('afterend', error);
+            
+            setTimeout(() => {
+                hideError();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            hideSuccess();
+            const success = document.createElement('div');
+            success.className = 'success';
+            success.textContent = message;
+            
+            const inputSection = document.querySelector('.input-section');
+            inputSection.insertAdjacentElement('afterend', success);
+            
+            setTimeout(() => {
+                hideSuccess();
+            }, 3000);
+        }
+
+        function hideError() {
+            const existingError = document.querySelector('.error');
+            if (existingError) {
+                existingError.remove();
+            }
+        }
+
+        function hideSuccess() {
+            const existingSuccess = document.querySelector('.success');
+            if (existingSuccess) {
+                existingSuccess.remove();
+            }
+        }
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enfocar el input al cargar la página
+            document.getElementById('urlInput').focus();
+            
+            // Agregar algunos ejemplos de URLs populares como placeholder
+            const examples = [
+                'https://github.com',
+                'https://stackoverflow.com',
+                'https://developer.mozilla.org',
+                'https://css-tricks.com',
+                'https://codepen.io'
+            ];
+            
+            let currentExample = 0;
+            const urlInput = document.getElementById('urlInput');
+            
+            setInterval(() => {
+                if (urlInput.value === '') {
+                    urlInput.placeholder = examples[currentExample];
+                    currentExample = (currentExample + 1) % examples.length;
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
